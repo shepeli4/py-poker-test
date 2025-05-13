@@ -1,4 +1,5 @@
 from random import shuffle, randint
+from time import sleep
 
 
 def _dummy0(hand):
@@ -29,7 +30,12 @@ def _dummy1(hand, bet):
             del hand[randint(0, 4)], hand[randint(0, 3)], hand[randint(0, 2)]
             hand.extend([deck.pop(0), deck.pop(0), deck.pop(0)])
 
-    return [sorted(hand, key=lambda x: int(x[1:])), bet + _your_hand(hand)[0] * 7 - 15 + randint(11, 30)]
+    quick_bet = _your_hand(hand)[0] * 7 - 30 + randint(0, 50)
+    while bet - quick_bet < 0 or quick_bet < 0:
+        quick_bet = _your_hand(hand)[0] * 7 - 30 + randint(0, 50)
+    print(f"The bot made a bet of {quick_bet} points")
+
+    return [sorted(hand, key=lambda x: int(x[1:])), bet - quick_bet]
 
 
 def _card_input():
@@ -78,24 +84,24 @@ def _your_hand(hand):
         if condition:
             return [rank, name]
 
-    return [1, "High card. You're a loser, bro"]
+    return [1, "High card."]
 
 
-def is_flush(li): #4
+def is_flush(li):  # 4
     return all(map(lambda x: True if x[0] == li[0][0] else False, li))
 
 
-def is_straight(li): #5
+def is_straight(li):  # 5
     li = sorted([int(i[1:]) for i in li])
     return li == list(range(min(li), max(li) + 1))
 
 
-def is_four(li): #2
+def is_four(li):  # 2
     li = [int(i[1:]) for i in li]
     return li.count(li[0]) == 4 or li.count(li[1]) == 4
 
 
-def is_full_house(li): #3
+def is_full_house(li):  # 3
     li = sorted([int(i[1:]) for i in li])
     return li.count(li[0]) == 3 and li.count(li[-1]) == 2 or li.count(li[0]) == 2 and li.count(li[-1]) == 3
 
@@ -104,7 +110,8 @@ def is_three(li):
     li = sorted([int(i[1:]) for i in li])
     return li.count(li[0]) == 3 or li.count(li[1]) == 3 or li.count(li[2]) == 3
 
-def is_two_pair(li): #7
+
+def is_two_pair(li):  # 7
     li = sorted([int(i[1:]) for i in li])
     cnt = 0
     for i in li:
@@ -114,7 +121,7 @@ def is_two_pair(li): #7
     return cnt == 2
 
 
-def is_pair(li): #8
+def is_pair(li):  # 8
     li = sorted([int(i[1:]) for i in li])
     cnt = 0
     for i in li:
@@ -124,44 +131,136 @@ def is_pair(li): #8
     return cnt == 1
 
 
-deck = ['♥' + str(i) for i in range(1, 15)] + ['♦' + str(i) for i in range(1, 15)] + ['♣' + str(i) for i in range(1, 15)] + ['♠' + str(i) for i in range(1, 15)]
+deck = ['♥' + str(i) for i in range(2, 15)] + ['♦' + str(i) for i in range(2, 15)] + ['♣' + str(i) for i in
+                                                                                      range(2, 15)] + ['♠' + str(i) for
+                                                                                                       i in
+                                                                                                       range(2, 15)]
 shuffle(deck)
 
 
-def __game():
-    player, bot0 = [[], 0], [[], 0]
+def __game(pl_bet, bot_bet):
+    bet = 0
+    player, bot0 = [[], pl_bet], [[], bot_bet]
     for i in range(5):
         player[0].append(deck.pop(0))
 
     for i in range(5):
         bot0[0].append(deck.pop(0))
 
-    print("\033[3mHello player! Welcome to the game \033[93mPoker\033[0m\033[3m! In this game you will play \033[95mclassic poker (Draw Poker)\033[0m\033[3m with a bot.")
-
+    player[0] = sorted(player[0], key=lambda x: int(x[1:]))
+    sleep(0.5)
     print("Here are your cards:")
+    sleep(0.5)
     _card_print(player[0])
+    sleep(0.5)
     print(*_your_hand(player[0]), sep=' - ')
-    print("Select the cards you want to discard (the ID is displayed above them)")
+    sleep(0.5)
+    print("Place a bet")
+
+    quick_bet = int(input())
+    while player[1] - quick_bet < 0:
+        print(f"You have {player[1]} points left, idiot")
+        quick_bet = int(input())
+    player[1] = player[1] - quick_bet
+    bet += quick_bet
+
+    quick_bet = _dummy0(bot0[0])
+    while bot0[1] - quick_bet < 0:
+        quick_bet = _dummy0(bot0[0])
+    print(f"the bot made a bet of {quick_bet} points")
+    bet += quick_bet
+
+    sleep(0.5)
+    print("Total bet:", bet)
+    sleep(1)
+    print("Select the cards you want to discard (the ID is displayed above them). If you don't want to discard the cards, just press Enter")
+    sleep(0.5)
     print(" 1  2  3  4  5")
     _card_print(player[0])
-    
 
-__game()
-'''
-#cards = _card_input() #♥J ♦J ♥T ♣J ♠J
-player, bot0 = [[], 0], [[], 0]
-for i in range(5):
-    player[0].append(deck.pop(0))
+    for i in [player[0][int(i) - 1] for i in input().split()]:
+        del player[0][player[0].index(i)]
+    for i in range(5 - len(player[0])):
+        player[0].append(deck.pop(0))
 
-for i in range(5):
-    bot0[0].append(deck.pop(0))
+    print("Your hand:")
+    _card_print(player[0])
+    print(*_your_hand(player[0]), sep=' - ')
+    sleep(0.5)
 
-bot0 = [sorted(bot0[0], key=lambda x: int(x[1:])), 0]
-bot0[1] = _dummy0(bot0[0])
-print(bot0, _your_hand(bot0[0]))
-bot0 = _dummy1(bot0[0], bot0[1])
-print(bot0, _your_hand(bot0[0]))
-#_card_print(player[0])
-#_card_print(bot0[0])
-#_your_hand(player[0])
-'''
+    print("Place a bet")
+    quick_bet = int(input())
+    while player[1] - quick_bet < 0:
+        print(f"You have {player[1]} points left, idiot")
+        quick_bet = int(input())
+    player[1] = player[1] - quick_bet
+    bet += quick_bet
+
+    quick_bet = bot0[1]
+    bot0 = _dummy1(*bot0)
+    bet += quick_bet - bot0[1]
+
+    print("Total bet:", bet)
+    sleep(0.5)
+    print()
+    for i in range(10):
+        print('\033[95m-\033[0m', end='')
+        sleep(0.1)
+    print()
+    sleep(0.5)
+
+    print('Your cards:')
+    sleep(0.25)
+    _card_print(player[0])
+    sleep(0.25)
+    print(*_your_hand(player[0]), sep=' - ')
+
+    sleep(0.5)
+    for i in range(10):
+        print('\033[93m-\033[0m', end='')
+        sleep(0.1)
+    print()
+    sleep(0.5)
+
+    print("Bot cards:")
+    sleep(0.25)
+    _card_print(bot0[0])
+    sleep(0.25)
+    print(*_your_hand(bot0[0]), sep=' - ')
+
+    if _your_hand(player[0]) > _your_hand(bot0[0]):
+        player[1] += bet
+    elif _your_hand(player[0]) < _your_hand(bot0[0]):
+        bot0[1] += bet
+    else:
+        print("You all are missing everything (i haven't finished this part yet, wait pls☺)")
+
+    return player[1], bot0[1]
+
+
+try:
+
+    print("\033[3mHello player! Welcome to the game \033[93mPoker\033[0m\033[3m! In this game you will play \033[95mclassic poker (Draw Poker)\033[0m\033[3m with a bot.")
+    sleep(0.5)
+    print("You will be in the game until you lose everything or until you want to stop.")
+    sleep(2)
+    flag = True
+
+    _player_bet, _bot_bet = 100, 99999
+    while flag and _player_bet:
+        if _bot_bet < 1:
+            print('Bro... You destroyed our casino. We have no more money.\033[91m GET OUT!!\033[0m')
+            break
+
+        _player_bet, _bot_bet = __game(_player_bet, _bot_bet)
+
+        if _player_bet > 0:
+            print(f"On your account {_player_bet} points. Again? (y/n)")
+            flag = True if input() == 'y' else False
+    else:
+        if _player_bet:
+            print(f"You have {_player_bet} points left. Thanks for playing, come again.")
+        else:
+            print("Adyos,\033[91m loser♥\033[0m")
+except:
+    raise Exception("\033[1mWow, you broke everything.")
