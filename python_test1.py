@@ -41,7 +41,7 @@ def _card_input():
             li[li.index(card)] = card[0] + data[card[1:]]
     return li
 
-'''
+
 def _card_print(li):
     data = {'11': 'J', '12': 'Q', '13': 'K', '14': 'T'}
     li = sorted(sorted(li, key=lambda x: x[0]), key=lambda x: int(x[1:]))
@@ -51,16 +51,16 @@ def _card_print(li):
 
     for card in li:
         if card[0] in '♥♦':
-            print(f'{"\033[91m"}{card}{"\033[0m"}', end=' ')
+            print(f'\033[91m{card}\033[0m', end=' ')
         else:
-            print(f'{"\033[0m"}{card}{"\033[0m"}', end=' ')
+            print(f'\033[0m{card}\033[0m', end=' ')
     print()
 
     data = {'J': '11', 'Q': '12', 'K': '13', 'T': '14'}
     for card in li:
         if card[1:] in data.keys():
             li[li.index(card)] = card[0] + data[card[1:]]
-'''
+
 
 def _your_hand(hand):
     hand_ranks = [
@@ -78,7 +78,7 @@ def _your_hand(hand):
         if condition:
             return [rank, name]
 
-    return [1, "High card You're a loser, bro"]
+    return [1, "High card. You're a loser, bro"]
 
 
 def is_flush(li): #4
@@ -127,15 +127,35 @@ def is_pair(li): #8
 deck = ['♥' + str(i) for i in range(1, 15)] + ['♦' + str(i) for i in range(1, 15)] + ['♣' + str(i) for i in range(1, 15)] + ['♠' + str(i) for i in range(1, 15)]
 shuffle(deck)
 
+
+def __game():
+    player, bot0 = [[], 0], [[], 0]
+    for i in range(5):
+        player[0].append(deck.pop(0))
+
+    for i in range(5):
+        bot0[0].append(deck.pop(0))
+
+    print("\033[3mHello player! Welcome to the game \033[93mPoker\033[0m\033[3m! In this game you will play \033[95mclassic poker (Draw Poker)\033[0m\033[3m with a bot.")
+
+    print("Here are your cards:")
+    _card_print(player[0])
+    print(*_your_hand(player[0]), sep=' - ')
+    print("Select the cards you want to discard (the ID is displayed above them)")
+    print(" 1  2  3  4  5")
+    _card_print(player[0])
+    
+
+__game()
+'''
 #cards = _card_input() #♥J ♦J ♥T ♣J ♠J
 player, bot0 = [[], 0], [[], 0]
 for i in range(5):
     player[0].append(deck.pop(0))
-'''
+
 for i in range(5):
     bot0[0].append(deck.pop(0))
-'''
-bot0 = [['♦9', '♣11', '♥14', '♥8', '♦8'], 0]
+
 bot0 = [sorted(bot0[0], key=lambda x: int(x[1:])), 0]
 bot0[1] = _dummy0(bot0[0])
 print(bot0, _your_hand(bot0[0]))
@@ -144,3 +164,4 @@ print(bot0, _your_hand(bot0[0]))
 #_card_print(player[0])
 #_card_print(bot0[0])
 #_your_hand(player[0])
+'''
