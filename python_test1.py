@@ -76,7 +76,7 @@ def _dummy0(hand):
     return _your_hand(hand)[0] * 5 - 10 + randint(11, 30)
 
 
-def _dummy1(hand, bet):
+def _dummy1(hand, bet, id):
     hand = sorted(hand, key=lambda x: int(x[1:]))
     if not str(_your_hand(hand)[0]) in '987653':
         if is_three(hand):
@@ -101,7 +101,7 @@ def _dummy1(hand, bet):
     quick_bet = _your_hand(hand)[0] * 7 - 30 + randint(0, 50)
     while bet - quick_bet < 10 or quick_bet < 0:
         quick_bet = _your_hand(hand)[0] * 7 - 30 + randint(0, 50)
-    print(f"The bot made a bet of {quick_bet} points")
+    print(f"The bot{id} made a bet of {quick_bet} points")
 
     return [sorted(hand, key=lambda x: int(x[1:])), bet - quick_bet]
 
@@ -200,15 +200,18 @@ def is_pair(li):  # 8
 
 
 
-def __game(pl_bet, bot0_bet):
+def __game(pl_bet, bot0_bet, bot1_bet):
     bet = 0
-    player, bot0 = [[], pl_bet], [[], bot0_bet]
+    player, bot0, bot1 = [[], pl_bet], [[], bot0_bet], [[], bot1_bet]
 
     for i in range(5):
         player[0].append(deck.pop(0))
 
     for i in range(5):
         bot0[0].append(deck.pop(0))
+
+    for i in range(5):
+        bot1[0].append(deck.pop(0))
 
     player[0] = sorted(player[0], key=lambda x: int(x[1:]))
     sleep(0.5)
@@ -230,7 +233,13 @@ def __game(pl_bet, bot0_bet):
     quick_bet = _dummy0(bot0[0])
     while bot0[1] - quick_bet < 0:
         quick_bet = _dummy0(bot0[0])
-    print(f"the bot made a bet of {quick_bet} points")
+    print(f"the bot0 made a bet of {quick_bet} points")
+    bet += quick_bet
+
+    quick_bet = _dummy0(bot1[0])
+    while bot1[1] - quick_bet < 0:
+        quick_bet = _dummy0(bot1[0])
+    print(f"the bot1 made a bet of {quick_bet} points")
     bet += quick_bet
 
     sleep(0.5)
@@ -261,7 +270,7 @@ def __game(pl_bet, bot0_bet):
 
     print('Do you want to give up?(y/n)')
     if 'y' in input().lower():
-        return player[1], bot0[1]
+        return player[1], bot0[1], bot1[1]
     sleep(0.5)
 
     print("Place a bet")
@@ -273,8 +282,12 @@ def __game(pl_bet, bot0_bet):
     bet += quick_bet
 
     quick_bet = bot0[1]
-    bot0 = _dummy1(*bot0)
+    bot0 = _dummy1(id=0, *bot0)
     bet += quick_bet - bot0[1]
+
+    quick_bet = bot1[1]
+    bot1 = _dummy1(id=1, *bot1)
+    bet += quick_bet - bot1[1]
 
     print("Total bet:", bet)
     sleep(0.5)
@@ -298,20 +311,36 @@ def __game(pl_bet, bot0_bet):
     print()
     sleep(0.5)
 
-    print("Bot cards:")
+    print("Bot0 cards:")
     sleep(0.25)
     _card_print(bot0[0])
     sleep(0.25)
     print(*_your_hand(bot0[0]), sep=' - ')
 
-    if _your_hand(player[0]) > _your_hand(bot0[0]):
+    sleep(0.5)
+    for i in range(10):
+        print('\033[93m-\033[0m', end='')
+        sleep(0.1)
+    print()
+    sleep(0.5)
+
+    print("Bot1 cards:")
+    sleep(0.25)
+    _card_print(bot1[0])
+    sleep(0.25)
+    print(*_your_hand(bot1[0]), sep=' - ')
+
+    if _your_hand(player[0]) > _your_hand(bot0[0]) and _your_hand(player[0]) > _your_hand(bot1[0]):
         print('You win!')
         player[1] += bet
-    elif _your_hand(player[0]) < _your_hand(bot0[0]):
-        print('You lose!')
+    elif _your_hand(player[0]) < _your_hand(bot0[0]) and _your_hand(bot1[0]) < _your_hand(bot0[0]):
+        print('You lose!(bot0 win)')
         bot0[1] += bet
+    elif _your_hand(player[0]) > _your_hand(bot0[0]) and _your_hand(bot1[0]) > _your_hand(bot0[0]):
+        print('You lose!(bot1 win)')
+        bot1[1] += bet
     else:
-        if _winner_is(player[0], bot0[0]) == 0:
+        if _winner_is(player[0], bot0[0]) == 0 and _winner_is(player[0], bot1[0]):
             print('You win!')
             player[1] += bet
         elif _winner_is(player[0], bot0[0]) == 1:
@@ -323,7 +352,7 @@ def __game(pl_bet, bot0_bet):
             bot0[1] += bet // 2
 
 
-    return player[1], bot0[1]
+    return player[1], bot0[1], bot1[1]
 
 
 try:
@@ -333,15 +362,15 @@ try:
     sleep(0.5)
     flag = True
 
-    _player_bet, _bot_bet = 100, 99999
+    _player_bet, _bot0_bet, _bot1_bet = 100, 99999, 99999
     while flag and _player_bet:
         deck = ['♥' + str(i) for i in range(2, 15)] + ['♦' + str(i) for i in range(2, 15)] + ['♣' + str(i) for i in range(2, 15)] + ['♠' + str(i) for i in range(2, 15)]
         shuffle(deck)
-        if _bot_bet < 1:
+        if _bot0_bet < 1 or _bot1_bet < 1:
             print('Bro... You destroyed our casino. We have no more money.\033[91m GET OUT!!\033[0m')
             break
 
-        _player_bet, _bot_bet = __game(_player_bet, _bot_bet)
+        _player_bet, _bot0_bet, _bot1_bet = __game(_player_bet, _bot0_bet, _bot1_bet)
 
         if _player_bet > 0:
             print(f"On your account {_player_bet} points. Again? (y/n)")
