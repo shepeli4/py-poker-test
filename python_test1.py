@@ -202,7 +202,7 @@ def is_pair(li):  # 8
 
 def __game(pl_bet, bot0_bet, bot1_bet):
     bet = 0
-    player, bot0, bot1 = [[], pl_bet], [[], bot0_bet], [[], bot1_bet]
+    player, bot0, bot1 = [[], pl_bet], [[], bot0_bet], [[], bot1_bet] #['♦6', '♠11', '♦12', '♠13', '♦14']
 
     for i in range(5):
         player[0].append(deck.pop(0))
@@ -330,26 +330,52 @@ def __game(pl_bet, bot0_bet, bot1_bet):
     sleep(0.25)
     print(*_your_hand(bot1[0]), sep=' - ')
 
-    if _your_hand(player[0]) > _your_hand(bot0[0]) and _your_hand(player[0]) > _your_hand(bot1[0]):
+    if _your_hand(player[0])[0] > _your_hand(bot0[0])[0] and _your_hand(player[0])[0] > _your_hand(bot1[0])[0]:
         print('You win!')
         player[1] += bet
-    elif _your_hand(player[0]) < _your_hand(bot0[0]) and _your_hand(bot1[0]) < _your_hand(bot0[0]):
+    elif _your_hand(player[0])[0] < _your_hand(bot0[0])[0] and _your_hand(bot1[0])[0] < _your_hand(bot0[0])[0]:
         print('You lose!(bot0 win)')
         bot0[1] += bet
-    elif _your_hand(player[0]) > _your_hand(bot0[0]) and _your_hand(bot1[0]) > _your_hand(bot0[0]):
+    elif _your_hand(player[0])[0] < _your_hand(bot1[0])[0] and _your_hand(bot1[0])[0] > _your_hand(bot0[0])[0]:
         print('You lose!(bot1 win)')
         bot1[1] += bet
-    else:
-        if _winner_is(player[0], bot0[0]) == 0 and _winner_is(player[0], bot1[0]):
-            print('You win!')
-            player[1] += bet
-        elif _winner_is(player[0], bot0[0]) == 1:
-            print('You lose!')
-            bot0[1] += bet
-        else:
-            print('Draw')
-            player[1] += bet // 2
-            bot0[1] += bet // 2
+    else: #Недостаёт еще одного усл.(в элс)
+        if _your_hand(player[0]) == _your_hand(bot0[0]):
+            if _winner_is(player[0], bot0[0]) == 0:
+                print('You win!')
+                player[1] += bet
+            elif _winner_is(player[0], bot0[0]) == 1:
+                print('You lose!(bot0 win)')
+                bot0[1] += bet
+            else:
+                print('Draw(player and bot0 split the bet)')
+                player[1] += bet // 2
+                bot0[1] += bet // 2
+
+        elif _your_hand(player[0]) == _your_hand(bot1[0]):
+            print(_winner_is(player[0], bot1[0]))
+            if _winner_is(player[0], bot1[0]) == 0:
+                print('You win!')
+                player[1] += bet
+            elif _winner_is(player[0], bot1[0]) == 1:
+                print('You lose!(bot1 win)')
+                bot1[1] += bet
+            else:
+                print('Draw(player and bot1 split the bet)')
+                player[1] += bet // 2
+                bot1[1] += bet // 2
+
+        elif _your_hand(bot0[0]) == _your_hand(bot1[0]):
+            if _winner_is(bot0[0], bot1[0]) == 0:
+                print('You lose!(bot0 win)')
+                bot0[1] += bet
+            elif _winner_is(bot0[0], bot1[0]) == 1:
+                print('You lose!(bot1 win)')
+                bot1[1] += bet
+            else:
+                print('Draw(bot0 and bot1 split the bet)')
+                bot0[1] += bet // 2
+                bot1[1] += bet // 2
 
 
     return player[1], bot0[1], bot1[1]
