@@ -72,9 +72,13 @@ def _winner_is(hand0, hand1):
         else:
             return 1
 
-def _dummy0(hand):
-    return _your_hand(hand)[0] * 5 - 10 + randint(11, 30)
 
+def _dummy0(hand):
+    quick_bet = _your_hand(hand)[0] * 5 - 10 + randint(11, 30)
+    while quick_bet < 10:
+        quick_bet = _your_hand(hand)[0] * 5 - 10 + randint(11, 30)
+
+    return quick_bet
 
 def _dummy1(hand, bet, id):
     hand = sorted(hand, key=lambda x: int(x[1:]))
@@ -94,12 +98,11 @@ def _dummy1(hand, bet, id):
                 del hand[0], hand[-1]
             hand.extend([deck.pop(0), deck.pop(0)])
         else:
-
             del hand[randint(0, 4)], hand[randint(0, 3)], hand[randint(0, 2)]
             hand.extend([deck.pop(0), deck.pop(0), deck.pop(0)])
 
     quick_bet = _your_hand(hand)[0] * 7 - 30 + randint(0, 50)
-    while bet - quick_bet < 10 or quick_bet < 0:
+    while bet - quick_bet < 0 or quick_bet < 10:
         quick_bet = _your_hand(hand)[0] * 7 - 30 + randint(0, 50)
     print(f"The bot{id} made a bet of {quick_bet} points")
 
@@ -235,6 +238,7 @@ def __game(pl_bet, bot0_bet, bot1_bet):
         quick_bet = _dummy0(bot0[0])
     print(f"the bot0 made a bet of {quick_bet} points")
     bet += quick_bet
+    sleep(0.5)
 
     quick_bet = _dummy0(bot1[0])
     while bot1[1] - quick_bet < 0:
@@ -284,6 +288,7 @@ def __game(pl_bet, bot0_bet, bot1_bet):
     quick_bet = bot0[1]
     bot0 = _dummy1(id=0, *bot0)
     bet += quick_bet - bot0[1]
+    sleep(0.5)
 
     quick_bet = bot1[1]
     bot1 = _dummy1(id=1, *bot1)
@@ -319,7 +324,7 @@ def __game(pl_bet, bot0_bet, bot1_bet):
 
     sleep(0.5)
     for i in range(10):
-        print('\033[93m-\033[0m', end='')
+        print('\033[32m-\033[0m', end='')
         sleep(0.1)
     print()
     sleep(0.5)
@@ -330,6 +335,7 @@ def __game(pl_bet, bot0_bet, bot1_bet):
     sleep(0.25)
     print(*_your_hand(bot1[0]), sep=' - ')
 
+    print()
     if _your_hand(player[0])[0] > _your_hand(bot0[0])[0] and _your_hand(player[0])[0] > _your_hand(bot1[0])[0]:
         print('You win!')
         player[1] += bet
@@ -339,8 +345,11 @@ def __game(pl_bet, bot0_bet, bot1_bet):
     elif _your_hand(player[0])[0] < _your_hand(bot1[0])[0] and _your_hand(bot1[0])[0] > _your_hand(bot0[0])[0]:
         print('You lose!(bot1 win)')
         bot1[1] += bet
-    else: #Недостаёт еще одного усл.(в элс)
-        if _your_hand(player[0]) == _your_hand(bot0[0]):
+    else:
+        if _your_hand(player[0]) == 1 and _your_hand(bot0[0]) == 1 and _your_hand(bot1[0]) == 1 and _winner_is(player[0], bot0[0]) == -1 and _winner_is(bot0[0], bot1[0]):
+            print('Draw (all have the same highest card of the same score)')
+
+        elif _your_hand(player[0]) == _your_hand(bot0[0]):
             if _winner_is(player[0], bot0[0]) == 0:
                 print('You win!')
                 player[1] += bet
