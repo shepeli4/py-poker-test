@@ -639,6 +639,21 @@ try:
         sleep(0.5)
         print("Ты будешь играть, пока не скажешь остановиться.")
         sleep(0.5)
+        print('Вы хотите услышать правила?(1.да / 2.нет)')
+        if input() == '1':
+            print('''Вам раздаются карты и говорится ваша комбинация в формате:
+♣3 ♥5 ♣K ♥K ♣T 
+2 - Пара
+
+Затем все игроки делают свои ставки(у вас изначально 100 поинтов на балансе). После ставок вы меняете карты указывая их ID через пробел(ID указан над ними):
+ 1  2  3  4  5
+♣3 ♥5 ♣K ♥K ♣T  
+
+После этого вам предложат сдаться. Если вы остались в игре, то все игроки делают дополнительные ставки и выносится вердикт о победителе, и ему зачисляется весь банк.
+''')
+            sleep(3)
+            print('Начнём игру')
+        sleep(0.5)
         flag = True
 
         _player_bet, _bot0_bet, _bot1_bet = 100, 99999, 99999
@@ -657,7 +672,7 @@ try:
                 print(f"У тебя осталось {_player_bet} поинтов. Ещё разок? (1.да / 2.нет)")
                 flag = True if '1' in input().lower() else False
             else:
-                print("Адиёс,\033[91m лузер♥\033[0m")
+                print("У вас на счету больше нет поинтов. Спасибо за игру, \033[91m лузер♥\033[0m")
                 break
         else:
             print(f"На вашем счету осталось {_player_bet} поинтов. Спасибо за игру, возвращайся снова.")
@@ -667,6 +682,21 @@ try:
         sleep(0.5)
         print("You will be in the game until you lose everything or until you want to stop.")
         sleep(0.5)
+        print('Do you want to hear the rules?(1.yes / 2.no)')
+        sleep(0.5)
+        if input() == '1':
+            print('''You are dealt cards and your combination is told in the format:
+♣3 ♥5 ♣K ♥K ♣T
+2 - Pair
+
+Then all players make their bets (you initially have 100 points on your balance). After betting, you change the cards by indicating their ID separated by a space (the ID is indicated above them):
+1 2 3 4 5
+♣3 ♥5 ♣K ♥K ♣T
+
+After this, you will be asked to surrender. If you remain in the game, then all players make additional bets and a verdict is made on the winner, and the entire bank is credited to him.
+''')
+            sleep(3)
+            print("Let's start the game")
         flag = True
 
         _player_bet, _bot0_bet, _bot1_bet = 100, 99999, 99999
@@ -689,7 +719,6 @@ try:
             print(f"You have {_player_bet} points left. Thanks for playing, come again.")
 
     else:
-        print('\033[36m你真是個白痴。')
-        raise Exception('\033[37m你真是個白痴。')
+        raise Exception('\033[36mWrong lang\033[0m')
 except:
     raise Exception("\033[1mWow, you broke everything.")
