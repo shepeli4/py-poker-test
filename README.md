@@ -1,4 +1,4 @@
-# py-poker-test
+# py-poker
 
 <p align="right">
   <a href="./README.md">English</a>
